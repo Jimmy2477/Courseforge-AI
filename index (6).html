@@ -1,0 +1,1952 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CourseForge AI</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%233b82f6'/><text x='50' y='68' font-family='Arial' font-weight='900' font-size='44' fill='white' text-anchor='middle'>CF</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #060a14;
+  --bg2:     #0a1020;
+  --bg3:     #0f1828;
+  --bg4:     #162035;
+  --border:  rgba(99,179,237,0.12);
+  --border2: rgba(99,179,237,0.22);
+  --text:    #e2eaf8;
+  --text2:   #7a90b8;
+  --text3:   #3a5080;
+  --blue:    #3b82f6;
+  --blue2:   #60a5fa;
+  --blue3:   #93c5fd;
+  --cyan:    #06b6d4;
+  --green:   #10b981;
+  --red:     #ef4444;
+  --amber:   #f59e0b;
+  --glow:    rgba(59,130,246,0.15);
+  --shadow:  0 4px 24px rgba(0,8,30,0.5);
+}
+
+[data-theme="light"] {
+  --bg:      #f0f4ff;
+  --bg2:     #ffffff;
+  --bg3:     #e8f0ff;
+  --bg4:     #dce8ff;
+  --border:  rgba(59,130,246,0.15);
+  --border2: rgba(59,130,246,0.3);
+  --text:    #0a1428;
+  --text2:   #3a5080;
+  --text3:   #7a90b8;
+  --blue:    #2563eb;
+  --blue2:   #3b82f6;
+  --blue3:   #60a5fa;
+  --glow:    rgba(59,130,246,0.08);
+  --shadow:  0 4px 24px rgba(37,99,235,0.1);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body { width: 100%; height: 100%; overflow: hidden; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* Grid background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Glow orb */
+body::after {
+  content: '';
+  position: fixed;
+  top: -200px; right: -200px;
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, rgba(59,130,246,0.06) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* HEADER */
+header {
+  position: relative;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  height: 60px;
+  min-height: 60px;
+  flex-shrink: 0;
+  background: rgba(6,10,20,0.8);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+
+[data-theme="light"] header { background: rgba(240,244,255,0.9); }
+
+.logo { display: flex; align-items: center; gap: 10px; }
+
+.logo-mark {
+  width: 34px; height: 34px;
+  background: linear-gradient(135deg, var(--blue), var(--cyan));
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 800;
+  color: white; font-family: 'Syne', sans-serif;
+  box-shadow: 0 0 20px rgba(59,130,246,0.4);
+}
+
+.logo-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px; font-weight: 700;
+  color: var(--text); letter-spacing: -0.3px;
+}
+
+.logo-name em { font-style: italic; color: var(--blue2); }
+
+.header-mid { display: flex; gap: 20px; align-items: center; }
+
+.hstat {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 500;
+  color: var(--text2); font-family: 'JetBrains Mono', monospace;
+}
+
+.hstat-val { color: var(--text); font-weight: 700; }
+.hstat-dot { width: 6px; height: 6px; border-radius: 50%; }
+.hstat-dot.blue  { background: var(--blue2); box-shadow: 0 0 6px var(--blue); }
+.hstat-dot.green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.hstat-dot.amber { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+.hstat-dot.red   { background: var(--red);   box-shadow: 0 0 6px var(--red); }
+
+.header-right { display: flex; align-items: center; gap: 10px; }
+
+.online-pill {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(16,185,129,0.1);
+  border: 1px solid rgba(16,185,129,0.2);
+  border-radius: 20px; padding: 4px 12px;
+  font-size: 11px; font-family: 'JetBrains Mono', monospace;
+  color: var(--green);
+}
+
+.pulse-dot {
+  width: 6px; height: 6px; background: var(--green);
+  border-radius: 50%; animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,100% { opacity:1; box-shadow:0 0 0 0 rgba(16,185,129,0.5); }
+  50%      { opacity:0.7; box-shadow:0 0 0 4px rgba(16,185,129,0); }
+}
+
+.theme-btn {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px; padding: 6px 14px;
+  font-size: 12px; font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text2); cursor: pointer;
+  transition: all 0.2s;
+}
+.theme-btn:hover { color: var(--text); border-color: var(--border2); }
+
+/* LAYOUT */
+.layout {
+  display: grid;
+  grid-template-columns: 268px 1fr;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+/* SIDEBAR */
+.sidebar {
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-scroll { flex: 1; overflow-y: auto; padding: 20px 16px; }
+.sidebar-scroll::-webkit-scrollbar { width: 3px; }
+.sidebar-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.sb-section { margin-bottom: 24px; }
+
+.sb-label {
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text3); margin-bottom: 8px; padding: 0 6px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; border-radius: 8px;
+  cursor: pointer; font-size: 13px; font-weight: 500;
+  color: var(--text2); transition: all 0.15s;
+  border: 1px solid transparent; margin-bottom: 2px;
+  user-select: none;
+}
+.nav-item:hover { background: var(--bg3); color: var(--text); }
+.nav-item.active {
+  background: var(--glow);
+  color: var(--blue2);
+  border-color: rgba(59,130,246,0.2);
+}
+.nav-icon { font-size: 15px; width: 18px; flex-shrink: 0; }
+
+.nav-badge {
+  margin-left: auto; background: var(--blue);
+  color: white; font-size: 10px; font-weight: 700;
+  padding: 2px 7px; border-radius: 10px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+
+.stat-box {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 10px; text-align: center;
+}
+
+.stat-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 24px; font-weight: 700;
+  color: var(--blue2); line-height: 1;
+}
+
+.stat-lbl { font-size: 10px; color: var(--text3); margin-top: 3px; font-family: 'JetBrains Mono', monospace; }
+
+.chip-wrap { display: flex; flex-wrap: wrap; gap: 5px; }
+
+.chip {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 6px; padding: 5px 9px;
+  font-size: 11px; font-weight: 500;
+  color: var(--text2); cursor: pointer;
+  transition: all 0.15s; font-family: inherit;
+}
+.chip:hover { background: var(--blue); color: white; border-color: var(--blue); }
+
+.hist-item {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px; margin-bottom: 6px;
+  cursor: pointer; transition: all 0.15s;
+}
+.hist-item:hover { border-color: var(--border2); }
+.hist-title { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hist-meta  { font-size: 10px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+
+/* MAIN */
+.main { display: flex; flex-direction: column; overflow: hidden; }
+
+.tab-bar {
+  display: flex; gap: 4px;
+  padding: 10px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2); flex-shrink: 0;
+}
+
+.tab-btn {
+  padding: 7px 18px; border-radius: 7px;
+  font-size: 13px; font-weight: 600;
+  cursor: pointer; color: var(--text2);
+  border: none; background: none;
+  font-family: inherit; transition: all 0.2s;
+}
+.tab-btn.active { background: var(--blue); color: white; }
+.tab-btn:hover:not(.active) { color: var(--text); background: var(--bg3); }
+
+.content { flex: 1; overflow-y: auto; padding: 28px 32px; }
+.content::-webkit-scrollbar { width: 4px; }
+.content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* PAGE TITLE */
+.page-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 28px; font-weight: 700;
+  letter-spacing: -0.5px; margin-bottom: 4px; color: var(--text);
+}
+.page-title em { font-style: italic; color: var(--blue2); }
+.page-sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; line-height: 1.6; }
+
+/* SEARCH */
+.search-wrap { position: relative; margin-bottom: 20px; }
+.search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 18px; pointer-events: none; }
+.search-input {
+  width: 100%;
+  background: var(--bg2);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 18px 14px 48px;
+  font-size: 15px; font-family: inherit; font-weight: 400;
+  color: var(--text); outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: var(--shadow);
+}
+.search-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+.search-input::placeholder { color: var(--text3); }
+
+/* CARD */
+.card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 14px; padding: 22px; margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+
+.card-title {
+  font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700;
+  color: var(--text); margin-bottom: 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+
+/* FORM */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.form-full { grid-column: 1 / -1; }
+.fg { display: flex; flex-direction: column; gap: 5px; }
+
+.fl {
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text3); font-family: 'JetBrains Mono', monospace;
+}
+
+.fc {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; padding: 9px 12px;
+  font-size: 13px; font-family: inherit;
+  color: var(--text); outline: none; transition: border-color 0.2s; width: 100%;
+}
+.fc:focus { border-color: var(--blue); }
+select.fc option { background: var(--bg3); }
+textarea.fc { resize: vertical; min-height: 72px; line-height: 1.5; }
+
+/* SLIDERS */
+.slider-row { margin-bottom: 16px; }
+.slider-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; }
+.slider-name { font-size: 11px; font-weight: 600; color: var(--text2); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.06em; }
+.slider-val { font-size: 11px; font-weight: 700; color: var(--blue2); background: rgba(59,130,246,0.12); padding: 2px 8px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; }
+
+input[type=range] {
+  width: 100%; height: 3px;
+  background: var(--bg4); border-radius: 2px;
+  outline: none; cursor: pointer; -webkit-appearance: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 16px; height: 16px;
+  background: var(--blue); border-radius: 50%;
+  cursor: pointer; transition: transform 0.15s;
+  box-shadow: 0 0 8px rgba(59,130,246,0.5);
+}
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+.slider-ticks { display: flex; justify-content: space-between; margin-top: 3px; }
+.slider-tick { font-size: 9px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+
+/* MODULE COUNT */
+.modcount-wrap { display: flex; gap: 6px; }
+.modcount-btn {
+  flex: 1; padding: 9px;
+  background: var(--bg3); border: 1.5px solid var(--border);
+  border-radius: 8px; font-size: 14px; font-weight: 700;
+  font-family: 'Syne', sans-serif; color: var(--text2);
+  cursor: pointer; transition: all 0.15s; text-align: center;
+}
+.modcount-btn:hover { border-color: var(--border2); color: var(--text); }
+.modcount-btn.active { background: var(--blue); border-color: var(--blue); color: white; box-shadow: 0 0 12px rgba(59,130,246,0.4); }
+
+/* ALERT */
+.alert { display: none; padding: 11px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; margin-bottom: 14px; line-height: 1.5; }
+.alert.success { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); color: #34d399; }
+.alert.error   { background: rgba(239,68,68,0.1);  border: 1px solid rgba(239,68,68,0.25);  color: #f87171; }
+.alert.info    { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.25); color: var(--blue3); }
+
+/* PROGRESS */
+.prog-wrap {
+  display: none; background: var(--bg2);
+  border: 1px solid var(--border); border-radius: 14px;
+  padding: 24px; margin-bottom: 16px;
+}
+.prog-wrap.show { display: block; }
+.prog-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.prog-title em { font-style: italic; color: var(--blue2); }
+.prog-sub { font-size: 12px; color: var(--text2); margin-bottom: 20px; }
+
+.prog-track { background: var(--bg4); border-radius: 99px; height: 3px; margin-bottom: 22px; overflow: hidden; }
+.prog-fill  { height: 100%; background: linear-gradient(90deg, var(--blue), var(--cyan)); border-radius: 99px; width: 0%; transition: width 0.8s ease; }
+
+.steps { display: flex; flex-direction: column; gap: 10px; }
+.step  { display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 400; color: var(--text3); transition: color 0.3s; }
+.step.active { color: var(--text); font-weight: 500; }
+.step.done   { color: var(--green); }
+
+.step-num {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--bg3); border: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; flex-shrink: 0;
+  font-family: 'JetBrains Mono', monospace; transition: all 0.3s;
+}
+.step.active .step-num { background: var(--blue); border-color: var(--blue); color: white; box-shadow: 0 0 10px rgba(59,130,246,0.5); }
+.step.done   .step-num { background: var(--green); border-color: var(--green); color: white; }
+
+/* GEN BUTTON */
+.gen-btn {
+  width: 100%; padding: 14px;
+  background: linear-gradient(135deg, var(--blue) 0%, #1d4ed8 100%);
+  border: none; border-radius: 10px;
+  color: white; font-size: 15px; font-weight: 700;
+  font-family: 'Syne', sans-serif; cursor: pointer;
+  transition: all 0.2s; display: flex; align-items: center;
+  justify-content: center; gap: 8px;
+  box-shadow: 0 4px 20px rgba(59,130,246,0.3);
+}
+.gen-btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 8px 28px rgba(59,130,246,0.4); }
+.gen-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.spinner {
+  display: none; width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white; border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* REVIEW */
+.rev-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; gap: 12px; flex-wrap: wrap; }
+.rev-course { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+.rev-meta   { font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+.rev-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+/* MODULE CARDS */
+.mod-list { display: flex; flex-direction: column; gap: 10px; }
+
+.mod-card {
+  background: var(--bg2); border: 1.5px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.mod-card:hover { border-color: var(--border2); }
+.mod-card.approved { border-color: rgba(16,185,129,0.4); }
+.mod-card.rejected { border-color: rgba(239,68,68,0.35); }
+.mod-card.uploaded { border-color: rgba(59,130,246,0.45); }
+.mod-card.editing  { border-color: rgba(245,158,11,0.4); }
+
+.mod-head {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px; cursor: pointer; gap: 10px;
+}
+
+.mod-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+
+.mod-num {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--blue), #1d4ed8);
+  border-radius: 8px; display: flex; align-items: center;
+  justify-content: center; font-size: 14px; font-weight: 800;
+  color: white; flex-shrink: 0;
+  font-family: 'Syne', sans-serif;
+  box-shadow: 0 0 12px rgba(59,130,246,0.3);
+}
+
+.mod-info { min-width: 0; }
+.mod-title {
+  font-size: 14px; font-weight: 600; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  margin-bottom: 3px; font-family: 'Syne', sans-serif;
+}
+
+.mod-badge {
+  display: inline-block; font-size: 10px; font-weight: 700;
+  padding: 2px 9px; border-radius: 20px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.mod-badge.pending  { background: rgba(245,158,11,0.12); color: #f59e0b; }
+.mod-badge.approved { background: rgba(16,185,129,0.12); color: #10b981; }
+.mod-badge.rejected { background: rgba(239,68,68,0.12);  color: #ef4444; }
+.mod-badge.uploaded { background: rgba(59,130,246,0.12); color: var(--blue2); }
+.mod-badge.editing  { background: rgba(245,158,11,0.12); color: #f59e0b; }
+
+.mod-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+
+.chev { width: 16px; height: 16px; color: var(--text3); transition: transform 0.25s; flex-shrink: 0; }
+.mod-card.open .chev { transform: rotate(180deg); }
+
+.mod-body { display: none; border-top: 1px solid var(--border); }
+.mod-card.open .mod-body { display: block; }
+
+.mod-preview {
+  padding: 18px 20px; max-height: 360px;
+  overflow-y: auto; font-size: 13px; line-height: 1.75;
+  color: var(--text2);
+}
+.mod-preview::-webkit-scrollbar { width: 3px; }
+.mod-preview::-webkit-scrollbar-thumb { background: var(--border); }
+.mod-preview h1,.mod-preview h2,.mod-preview h3 { color: var(--text); font-family: 'Syne', sans-serif; margin: 14px 0 6px; }
+.mod-preview strong { color: var(--text); }
+.mod-preview li { margin-left: 18px; margin-bottom: 3px; }
+.mod-preview p  { margin-bottom: 8px; }
+
+.mod-edit-area {
+  display: none; padding: 14px 18px;
+  border-top: 1px solid var(--border);
+  background: rgba(245,158,11,0.04);
+}
+.mod-edit-area.show { display: block; }
+
+.edit-label {
+  font-size: 10px; font-weight: 700; color: var(--amber);
+  margin-bottom: 8px; font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase; letter-spacing: 0.08em;
+}
+
+.edit-ta {
+  width: 100%; background: var(--bg3);
+  border: 1.5px solid rgba(245,158,11,0.3);
+  border-radius: 8px; padding: 12px 14px;
+  font-size: 13px; font-family: inherit;
+  color: var(--text); outline: none;
+  resize: vertical; min-height: 200px; line-height: 1.6;
+  margin-bottom: 10px; transition: border-color 0.2s;
+}
+.edit-ta:focus { border-color: var(--amber); }
+
+.feedback-area {
+  display: none; padding: 14px 18px;
+  border-top: 1px solid var(--border);
+  background: rgba(239,68,68,0.04);
+}
+.feedback-area.show { display: block; }
+
+.fb-label {
+  font-size: 10px; font-weight: 700; color: var(--red);
+  margin-bottom: 8px; font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase; letter-spacing: 0.08em;
+}
+
+.fb-opts { display: flex; gap: 6px; margin-bottom: 10px; }
+.fb-opt {
+  padding: 6px 14px; border-radius: 6px;
+  font-size: 12px; font-weight: 600;
+  font-family: inherit; cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--bg3); color: var(--text2);
+  transition: all 0.15s;
+}
+.fb-opt.active { background: var(--bg4); color: var(--text); border-color: var(--border2); }
+
+.fb-ta {
+  width: 100%; background: var(--bg3);
+  border: 1px solid rgba(239,68,68,0.3);
+  border-radius: 8px; padding: 10px 12px;
+  font-size: 13px; font-family: inherit;
+  color: var(--text); outline: none;
+  resize: vertical; min-height: 72px;
+  margin-bottom: 10px; transition: border-color 0.2s;
+}
+.fb-ta:focus { border-color: var(--red); }
+
+.mod-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 18px; border-top: 1px solid var(--border);
+  background: rgba(255,255,255,0.01);
+  font-size: 10px; color: var(--text3);
+  font-family: 'JetBrains Mono', monospace;
+  flex-wrap: wrap; gap: 6px;
+}
+
+/* BUTTONS */
+.btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 14px; border-radius: 7px;
+  font-size: 12px; font-weight: 700;
+  font-family: inherit; cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s; white-space: nowrap;
+}
+.btn-approve { background: rgba(16,185,129,0.1); color: #10b981; border-color: rgba(16,185,129,0.25); }
+.btn-approve:hover { background: var(--green); color: white; }
+.btn-reject  { background: rgba(239,68,68,0.1);  color: #ef4444; border-color: rgba(239,68,68,0.25); }
+.btn-reject:hover  { background: var(--red); color: white; }
+.btn-upload  { background: rgba(59,130,246,0.1); color: var(--blue2); border-color: rgba(59,130,246,0.25); }
+.btn-upload:hover  { background: var(--blue); color: white; }
+.btn-edit    { background: rgba(245,158,11,0.1); color: var(--amber); border-color: rgba(245,158,11,0.25); }
+.btn-edit:hover    { background: var(--amber); color: white; }
+.btn-pdf     { background: var(--bg3); color: var(--text2); border-color: var(--border); }
+.btn-pdf:hover     { color: var(--text); }
+.btn-ghost   { background: var(--bg3); color: var(--text2); border-color: var(--border); }
+.btn-ghost:hover   { color: var(--text); }
+.btn-danger  { background: var(--red); color: white; border-color: var(--red); }
+.btn-danger:hover  { opacity: 0.85; }
+.btn-primary { background: var(--blue); color: white; border-color: var(--blue); }
+.btn-primary:hover { opacity: 0.9; }
+.btn-sm { padding: 5px 11px; font-size: 11px; }
+
+/* EMPTY */
+.empty { text-align: center; padding: 70px 20px; color: var(--text3); }
+.empty-icon  { font-size: 44px; margin-bottom: 14px; opacity: 0.35; }
+.empty-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: var(--text2); margin-bottom: 6px; }
+.empty-desc  { font-size: 13px; line-height: 1.6; }
+
+/* HISTORY */
+.hist-grid { display: flex; flex-direction: column; gap: 10px; }
+.hist-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 18px; transition: all 0.15s;
+}
+.hist-card:hover { border-color: var(--border2); }
+.hist-card-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+.hist-card-meta  { font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-bottom: 10px; }
+.hist-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+.hist-tag {
+  font-size: 10px; font-weight: 600;
+  padding: 2px 9px; border-radius: 20px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.hist-tag.gen { background: var(--bg3); color: var(--text3); border: 1px solid var(--border); }
+.hist-tag.app { background: rgba(16,185,129,0.1); color: #10b981; }
+.hist-tag.up  { background: rgba(59,130,246,0.1); color: var(--blue2); }
+
+/* TOAST */
+#toasts {
+  position: fixed; bottom: 24px; right: 24px;
+  display: flex; flex-direction: column; gap: 8px; z-index: 9999;
+}
+.toast {
+  border-radius: 10px; padding: 13px 18px;
+  font-size: 13px; font-weight: 500;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  animation: toastIn 0.3s ease; max-width: 320px; line-height: 1.4;
+  border: 1px solid;
+}
+.toast.success { background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.3); color: #34d399; }
+.toast.error   { background: rgba(239,68,68,0.15);  border-color: rgba(239,68,68,0.3);  color: #f87171; }
+.toast.info    { background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.3); color: var(--blue3); }
+
+@keyframes toastIn {
+  from { transform: translateX(120%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+/* ── RESPONSIVE ─────────────────────────────────────────── */
+
+/* Tablet (768px - 1024px) */
+@media (max-width: 1024px) {
+  .layout { grid-template-columns: 220px 1fr; }
+  .header-mid { display: none; }
+  .content { padding: 20px 18px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .form-full { grid-column: 1; }
+}
+
+/* Mobile (max 768px) */
+@media (max-width: 768px) {
+  html, body { overflow: auto; }
+
+  body { flex-direction: column; }
+
+  /* Header */
+  header {
+    padding: 0 14px;
+    height: 52px; min-height: 52px;
+    flex-wrap: nowrap;
+  }
+  .header-mid { display: none; }
+  .logo-name { font-size: 15px; }
+  .logo-mark { width: 28px; height: 28px; font-size: 13px; }
+  .online-pill { font-size: 10px; padding: 3px 8px; }
+  .theme-btn { padding: 5px 10px; font-size: 11px; }
+
+  /* Layout — stack sidebar below tabs on mobile */
+  .layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    overflow: visible;
+    flex: none;
+  }
+
+  /* Hide sidebar on mobile, show as bottom drawer */
+  .sidebar { display: none; }
+
+  /* Main area */
+  .main { overflow: visible; }
+
+  /* Tab bar */
+  .tab-bar {
+    padding: 8px 12px;
+    overflow-x: auto;
+    gap: 6px;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tab-btn {
+    padding: 6px 14px;
+    font-size: 12px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* Content */
+  .content {
+    padding: 16px 14px;
+    overflow-y: auto;
+    max-height: calc(100vh - 120px);
+  }
+
+  /* Page title */
+  .page-title { font-size: 20px; }
+  .page-sub { font-size: 12px; margin-bottom: 16px; }
+
+  /* Search */
+  .search-input { font-size: 14px; padding: 12px 14px 12px 40px; }
+
+  /* Form grid — single column */
+  .form-grid { grid-template-columns: 1fr; gap: 10px; }
+  .form-full { grid-column: 1; }
+
+  /* Sliders */
+  .slider-row { margin-bottom: 12px; }
+
+  /* Module count buttons */
+  .modcount-btn { padding: 6px 14px; font-size: 12px; }
+
+  /* Generate button */
+  #gen-btn {
+    width: 100%;
+    padding: 13px;
+    font-size: 14px;
+    margin-top: 8px;
+  }
+
+  /* Progress */
+  .prog-steps { flex-wrap: wrap; gap: 6px; }
+  .step { min-width: 80px; }
+  .step-label { font-size: 10px; }
+
+  /* Module cards */
+  .mod-card { padding: 14px; }
+  .mod-header { flex-wrap: wrap; gap: 6px; }
+  .mod-actions { flex-wrap: wrap; gap: 6px; }
+  .mod-actions button { flex: 1; min-width: 120px; font-size: 12px; padding: 8px 10px; }
+
+  /* History grid */
+  .hist-grid { grid-template-columns: 1fr; }
+
+  /* Stats in header — hide on very small */
+  .hstat { display: none; }
+
+  /* Connect modal */
+  #conn-modal > div {
+    width: 95% !important;
+    padding: 20px !important;
+  }
+}
+
+/* Small mobile (max 480px) */
+@media (max-width: 480px) {
+  .logo-name { display: none; }
+  .content { padding: 12px 10px; }
+  .page-title { font-size: 18px; }
+  .tab-btn { padding: 5px 10px; font-size: 11px; }
+  .card { padding: 14px; }
+}
+
+/* Ensure scrolling works on all mobile browsers */
+@media (max-width: 768px) {
+  * { -webkit-tap-highlight-color: transparent; }
+  input, select, textarea, button { font-size: 16px !important; } /* Prevent iOS zoom on focus */
+  .fc, .search-input { font-size: 16px !important; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-mark">CF</div>
+    <div class="logo-name">Course<em>Forge</em> AI</div>
+  </div>
+  <div class="header-mid">
+    <div class="hstat"><div class="hstat-dot blue"></div><span class="hstat-val" id="hGen">0</span> generated</div>
+    <div class="hstat"><div class="hstat-dot green"></div><span class="hstat-val" id="hApp">0</span> approved</div>
+    <div class="hstat"><div class="hstat-dot amber"></div><span class="hstat-val" id="hUp">0</span> downloaded</div>
+    <div class="hstat"><div class="hstat-dot red"></div><span class="hstat-val" id="hRej">0</span> rejected</div>
+  </div>
+  <div class="header-right">
+    <div class="online-pill" id="conn-pill" onclick="openConnectModal()" style="cursor:pointer;border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.08)" title="Click to connect backend">
+      <div class="pulse-dot" id="conn-dot" style="background:var(--red)"></div>
+      <span id="conn-label">disconnected</span>
+    </div>
+    <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">☀️ Light</button>
+  </div>
+</header>
+
+<!-- CONNECT MODAL -->
+<div id="conn-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:32px;max-width:520px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+    <h2 style="font-family:Syne,sans-serif;margin-bottom:8px;color:var(--text)">&#128268; Connect Backend</h2>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:8px;line-height:1.6;">Paste your Cloudflare tunnel URL, or click <strong>Use localhost</strong> if running locally.</p>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:16px;">Start tunnel with: <code style="background:var(--bg3);padding:3px 8px;border-radius:5px;">cloudflared tunnel --url http://localhost:5678</code></p>
+    <input id="conn-url-input" type="text" placeholder="https://xxxx.trycloudflare.com  OR  http://localhost:5678"
+      style="width:100%;background:var(--bg3);border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;font-size:13px;color:var(--text);outline:none;font-family:inherit;margin-bottom:16px;box-sizing:border-box;"
+      onkeydown="if(event.key==='Enter')saveConnUrl()">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button onclick="saveConnUrl()" style="flex:1;min-width:120px;background:var(--blue);color:white;border:none;border-radius:8px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Connect</button>
+      <button onclick="useLocalhost()" style="flex:1;min-width:120px;background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Use localhost</button>
+      <button onclick="closeConnModal()" style="background:var(--bg3);color:var(--text2);border:1px solid var(--border);border-radius:8px;padding:11px 16px;font-size:14px;cursor:pointer;font-family:inherit;">&#10005;</button>
+    </div>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-scroll">
+
+      <div class="sb-section">
+        <div class="sb-label">Navigation</div>
+        <div class="nav-item active" id="nav-generate" onclick="switchTab('generate',this)">
+          <span class="nav-icon">✨</span> Generate Course
+        </div>
+        <div class="nav-item" id="nav-review" onclick="switchTab('review',this)">
+          <span class="nav-icon">📋</span> Review Modules
+          <span class="nav-badge" id="pending-badge" style="display:none">0</span>
+        </div>
+        <div class="nav-item" id="nav-history" onclick="switchTab('history',this)">
+          <span class="nav-icon">🕐</span> History
+        </div>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-label">Stats</div>
+        <div class="stats-grid">
+          <div class="stat-box"><div class="stat-num" id="sGen">0</div><div class="stat-lbl">Generated</div></div>
+          <div class="stat-box"><div class="stat-num" id="sApp">0</div><div class="stat-lbl">Approved</div></div>
+          <div class="stat-box"><div class="stat-num" id="sUp">0</div><div class="stat-lbl">Uploaded</div></div>
+          <div class="stat-box"><div class="stat-num" id="sRej">0</div><div class="stat-lbl">Rejected</div></div>
+        </div>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-label">Quick Topics</div>
+        <div class="chip-wrap">
+          <button class="chip" onclick="setTopic('Artificial Intelligence')">AI & ML</button>
+          <button class="chip" onclick="setTopic('Cyber Security Fundamentals')">Cybersecurity</button>
+          <button class="chip" onclick="setTopic('Database Management Systems')">DBMS</button>
+          <button class="chip" onclick="setTopic('Software Engineering')">Software Eng.</button>
+          <button class="chip" onclick="setTopic('Web Development')">Web Dev</button>
+          <button class="chip" onclick="setTopic('Data Structures and Algorithms')">DSA</button>
+          <button class="chip" onclick="setTopic('Business Administration')">Business Admin</button>
+          <button class="chip" onclick="setTopic('Financial Accounting')">Accounting</button>
+          <button class="chip" onclick="setTopic('Introduction to Economics')">Economics</button>
+          <button class="chip" onclick="setTopic('Project Management')">Project Mgmt</button>
+          <button class="chip" onclick="setTopic('Human Resource Management')">HR Management</button>
+          <button class="chip" onclick="setTopic('Research Methods')">Research Methods</button>
+          <button class="chip" onclick="setTopic('Technical Writing')">Technical Writing</button>
+          <button class="chip" onclick="setTopic('Introduction to Psychology')">Psychology</button>
+          <button class="chip" onclick="setTopic('Public Health')">Public Health</button>
+          <button class="chip" onclick="setTopic('Environmental Science')">Env. Science</button>
+          <button class="chip" onclick="setTopic('Mobile Application Development')">Mobile Dev</button>
+          <button class="chip" onclick="setTopic('Computer Networks')">Networks</button>
+        </div>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-label">Recent</div>
+        <div id="sb-hist"><div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace">No courses yet</div></div>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tab-generate" onclick="switchTab('generate',null,'tab')">⚡ Generate</button>
+      <button class="tab-btn" id="tab-review" onclick="switchTab('review',null,'tab')">📋 Review <span id="tab-badge" style="display:none;background:var(--blue);color:white;font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px;margin-left:4px">0</span></button>
+      <button class="tab-btn" id="tab-history" onclick="switchTab('history',null,'tab')">🕐 History</button>
+    </div>
+
+    <div class="content">
+
+      <!-- GENERATE PANEL -->
+      <div class="panel active" id="panel-generate">
+        <div class="page-title">Generate <em>Courseware</em></div>
+        <div class="page-sub">Enter any course topic — CourseForge AI searches the web, generates a complete structured curriculum and saves it to Google Drive automatically.</div>
+
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" id="course-topic"
+            placeholder="e.g. Compiler Construction, Machine Learning, Operating Systems..."
+            autocomplete="off" onkeydown="if(event.key==='Enter')generateCourse()">
+        </div>
+
+        <div class="card">
+          <div class="card-title">⚙️ Course Configuration</div>
+          <div class="form-grid">
+            <div class="fg">
+              <div class="fl">Academic Level</div>
+              <select class="fc" id="course-level">
+                <option value="Undergraduate (100 Level)">Undergraduate — 100 Level</option>
+                <option value="Undergraduate (200 Level)" selected>Undergraduate — 200 Level</option>
+                <option value="Undergraduate (300 Level)">Undergraduate — 300 Level</option>
+                <option value="Postgraduate">Postgraduate</option>
+                <option value="Professional">Professional</option>
+              </select>
+            </div>
+            <div class="fg">
+              <div class="fl">Duration</div>
+              <select class="fc" id="course-duration">
+                <option value="1 semester (16 weeks)" selected>1 Semester — 16 weeks</option>
+                <option value="Half semester (8 weeks)">Half Semester — 8 weeks</option>
+                <option value="Short course (4 weeks)">Short Course — 4 weeks</option>
+                <option value="Workshop (1 week)">Workshop — 1 week</option>
+              </select>
+            </div>
+            <div class="fg form-full">
+              <div class="fl">Target Audience</div>
+              <input type="text" class="fc" id="course-audience" value="University students">
+            </div>
+          </div>
+
+          <div class="slider-row">
+            <div class="slider-head">
+              <span class="slider-name">Content Depth</span>
+              <span class="slider-val" id="depth-label">Intermediate</span>
+            </div>
+            <input type="range" id="depth-slider" min="0" max="3" value="1" oninput="updateSlider('depth')">
+            <div class="slider-ticks">
+              <span class="slider-tick">Basic</span>
+              <span class="slider-tick">Intermediate</span>
+              <span class="slider-tick">Advanced</span>
+              <span class="slider-tick">Expert</span>
+            </div>
+          </div>
+
+          <div class="slider-row">
+            <div class="slider-head">
+              <span class="slider-name">Course Breadth</span>
+              <span class="slider-val" id="breadth-label">Balanced</span>
+            </div>
+            <input type="range" id="breadth-slider" min="0" max="2" value="1" oninput="updateSlider('breadth')">
+            <div class="slider-ticks">
+              <span class="slider-tick">Focused</span>
+              <span class="slider-tick">Balanced</span>
+              <span class="slider-tick">Comprehensive</span>
+            </div>
+          </div>
+
+          <div class="fg" style="margin-bottom:14px">
+            <div class="fl">Number of Modules</div>
+            <div class="modcount-wrap">
+              <button class="modcount-btn" onclick="setModCount(2,this)">2</button>
+              <button class="modcount-btn" onclick="setModCount(4,this)">4</button>
+              <button class="modcount-btn active" onclick="setModCount(6,this)">6</button>
+              <button class="modcount-btn" onclick="setModCount(8,this)">8</button>
+            </div>
+          </div>
+
+          <div class="fg form-full">
+            <div class="fl">Special Instructions (optional)</div>
+            <textarea class="fc" id="course-instructions" placeholder="e.g. Include Nigerian tech industry context, focus on practical examples, include case studies..."></textarea>
+          </div>
+        </div>
+
+        <div class="alert" id="gen-alert"></div>
+
+        <div class="prog-wrap" id="prog-wrap">
+          <div class="prog-title">Generating <em id="prog-name"></em></div>
+          <div class="prog-sub">Searching the web and building your courseware. This takes 2–4 minutes.</div>
+          <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+          <div class="steps">
+            <div class="step" id="s1"><div class="step-num">1</div>Searching web for course research...</div>
+            <div class="step" id="s2"><div class="step-num">2</div>Generating structured syllabus with AI...</div>
+            <div class="step" id="s3"><div class="step-num">3</div>Writing detailed lesson content per module...</div>
+            <div class="step" id="s4"><div class="step-num">4</div>Saving complete course to Google Drive...</div>
+            <div class="step" id="s5"><div class="step-num">5</div>Preparing review package...</div>
+          </div>
+        </div>
+
+        <button class="gen-btn" id="gen-btn" onclick="generateCourse()">
+          <div class="spinner" id="gen-spin"></div>
+          ✨ Generate Courseware
+        </button>
+      </div>
+
+      <!-- REVIEW PANEL -->
+      <div class="panel" id="panel-review">
+        <div id="rev-empty">
+          <div class="page-title">Review <em>Modules</em></div>
+          <div class="page-sub">Generated modules will appear here for your review</div>
+          <div class="empty">
+            <div class="empty-icon">📋</div>
+            <div class="empty-title">No modules yet</div>
+            <div class="empty-desc">Generate a course first — all modules will appear here<br>ready to review, edit, approve or reject.</div>
+          </div>
+        </div>
+
+        <div id="rev-content" style="display:none">
+          <div class="rev-top">
+            <div>
+              <div class="rev-course" id="rev-course-name">Course</div>
+              <div class="rev-meta" id="rev-meta">0 modules</div>
+            </div>
+            <div class="rev-actions">
+              <button class="btn btn-approve" onclick="approveAll()">✅ Approve All</button>
+              
+              <button class="btn btn-pdf btn-sm" onclick="dlFullPDF()">📄 Full Course PDF</button>
+            </div>
+          </div>
+          <div class="alert" id="rev-alert"></div>
+          <div class="mod-list" id="mod-list"></div>
+        </div>
+      </div>
+
+      <!-- HISTORY PANEL -->
+      <div class="panel" id="panel-history">
+        <div class="page-title">Generation <em>History</em></div>
+        <div class="page-sub">All previously generated courses saved locally</div>
+        <div class="hist-grid" id="hist-grid">
+          <div class="empty">
+            <div class="empty-icon">🕐</div>
+            <div class="empty-title">No history yet</div>
+            <div class="empty-desc">Generated courses will appear here</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+// ── Backend URL (saved in localStorage, set via Connect button) ──
+function getBase() { return localStorage.getItem('cf_backend') || 'https://n8n-production-7318.up.railway.app'; }
+function N8N_GEN() { return getBase() + '/webhook/courseforge-intake'; }
+function N8N_REV() { return getBase() + '/webhook/courseforge-review'; }
+
+// ── AUTH CONFIG ──────────────────────────────────────────────
+const SB_URL = 'https://ruwzvjeymbryzgyvuzoa.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1d3p2amV5bWJyeXpneXZ1em9hIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTMxMzE5OCwiZXhwIjoyMDkwODg5MTk4fQ.2IXDklAXILWRKuxqkzh7D0T6VZMub8hWH2D-27smWqw';
+const SB_HEADERS = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' };
+function sbHash(p) { try { return btoa(unescape(encodeURIComponent(p + 'courseforge_salt_2026'))); } catch(e) { return btoa(p + 'courseforge_salt_2026'); } }
+
+function getCurrentUser() {
+  try { return JSON.parse(localStorage.getItem('cf_user') || 'null'); } catch(e) { return null; }
+}
+function setCurrentUser(user) { localStorage.setItem('cf_user', JSON.stringify(user)); }
+function logout() { localStorage.removeItem('cf_user'); showAuthPage(); }
+
+
+// ── Connect Modal ────────────────────────────────────────────
+function openConnectModal() {
+  const m = document.getElementById('conn-modal');
+  m.style.display = 'flex';
+  const inp = document.getElementById('conn-url-input');
+  inp.value = getBase();
+  inp.focus();
+}
+function closeConnModal() { document.getElementById('conn-modal').style.display = 'none'; }
+function useLocalhost() {
+  localStorage.setItem('cf_backend', 'http://localhost:5678');
+  updateConnStatus(); closeConnModal();
+}
+function saveConnUrl() {
+  let url = document.getElementById('conn-url-input').value.trim().replace(/\/$/, '');
+  if (!url) { alert('Please enter a URL'); return; }
+  if (!url.startsWith('http')) url = 'https://' + url;
+  localStorage.setItem('cf_backend', url);
+  updateConnStatus(); closeConnModal();
+  toast('Backend connected: ' + url, 'success');
+}
+function updateConnStatus() {
+  const base = getBase();
+  const pill = document.getElementById('conn-pill');
+  const dot  = document.getElementById('conn-dot');
+  const lbl  = document.getElementById('conn-label');
+  const isLocal = base.includes('localhost') || base.includes('127.0.0.1');
+  if (pill) {
+    pill.style.borderColor = 'rgba(16,185,129,0.3)';
+    pill.style.background  = 'rgba(16,185,129,0.1)';
+  }
+  if (dot) dot.style.background = 'var(--green)';
+  if (lbl) lbl.textContent = isLocal ? 'localhost' : 'tunnel connected';
+}
+const DEPTH_LABELS   = ['Basic','Intermediate','Advanced','Expert'];
+const BREADTH_LABELS = ['Focused','Balanced','Comprehensive'];
+
+let mods        = [];
+let courseTitle = '';
+let stats       = { gen:0, app:0, up:0, rej:0 };
+let history     = [];
+let modCount    = 6;
+let progTimer   = null;
+let rejMode     = {};
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  // Check if user is logged in
+  const user = getCurrentUser();
+  if (!user) { showAuthPage(); return; }
+  initApp(user);
+});
+
+function initApp(user) {
+  // Update header with user info
+  const pill = document.getElementById('conn-pill');
+  if (pill) {
+    pill.innerHTML = `<span style="font-size:11px">👤 ${user.full_name || user.email}</span>
+    <span style="margin-left:8px;cursor:pointer;font-size:10px;opacity:.7" onclick="logout()">Logout</span>`;
+    pill.style.cursor = 'default';
+  }
+  // Original init
+  _domReady();
+}
+
+function _domReady() {
+  const saved = localStorage.getItem('cf_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️ Light' : '🌙 Dark';
+  loadStorage();
+  updateConnStatus();
+  renderStats();
+  renderSbHist();
+  renderHistory();
+  if (mods.length > 0) renderMods();
+}
+
+// ============================================================
+// THEME
+// ============================================================
+function toggleTheme() {
+  const cur  = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  document.getElementById('theme-btn').textContent = next === 'dark' ? '☀️ Light' : '🌙 Dark';
+  localStorage.setItem('cf_theme', next);
+}
+
+// ============================================================
+// STORAGE
+// ============================================================
+function loadStorage() {
+  try {
+    const s = localStorage.getItem('cf_stats'); if (s) stats = JSON.parse(s);
+    const h = localStorage.getItem('cf_hist');  if (h) history = JSON.parse(h);
+    const m = localStorage.getItem('cf_mods');  if (m) mods = JSON.parse(m);
+    const t = localStorage.getItem('cf_title'); if (t) courseTitle = t;
+  } catch(e) {}
+}
+
+function save() {
+  localStorage.setItem('cf_stats', JSON.stringify(stats));
+  localStorage.setItem('cf_hist',  JSON.stringify(history));
+  localStorage.setItem('cf_mods',  JSON.stringify(mods));
+  localStorage.setItem('cf_title', courseTitle);
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function switchTab(name, navEl, src) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.getElementById('nav-'   + name).classList.add('active');
+  document.getElementById('tab-'   + name).classList.add('active');
+}
+
+function setTopic(t) {
+  document.getElementById('course-topic').value = t;
+  switchTab('generate');
+  document.getElementById('course-topic').focus();
+}
+
+// ============================================================
+// SLIDERS
+// ============================================================
+function updateSlider(type) {
+  const val    = parseInt(document.getElementById(type + '-slider').value);
+  const labels = type === 'depth' ? DEPTH_LABELS : BREADTH_LABELS;
+  document.getElementById(type + '-label').textContent = labels[val];
+}
+
+function setModCount(n, btn) {
+  modCount = n;
+  document.querySelectorAll('.modcount-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function buildInstructions() {
+  const depth   = DEPTH_LABELS[parseInt(document.getElementById('depth-slider').value)];
+  const breadth = BREADTH_LABELS[parseInt(document.getElementById('breadth-slider').value)];
+  const extra   = document.getElementById('course-instructions').value.trim();
+  let inst = `Content depth: ${depth}. Course breadth: ${breadth}. Generate exactly ${modCount} modules.`;
+  if (extra) inst += ' ' + extra;
+  return inst;
+}
+
+// ============================================================
+// STATS
+// ============================================================
+function renderStats() {
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  set('sGen', stats.gen); set('sApp', stats.app); set('sUp', stats.up); set('sRej', stats.rej);
+  set('hGen', stats.gen); set('hApp', stats.app); set('hUp', stats.up); set('hRej', stats.rej);
+  const pending = mods.filter(m => m.status === 'pending').length;
+  const pb = document.getElementById('pending-badge');
+  const tb = document.getElementById('tab-badge');
+  if (pb) { pb.textContent = pending; pb.style.display = pending > 0 ? 'block' : 'none'; }
+  if (tb) { tb.textContent = pending; tb.style.display = pending > 0 ? 'inline' : 'none'; }
+}
+
+// ============================================================
+// PROGRESS
+// ============================================================
+function showProgress(name) {
+  const btn = document.getElementById('gen-btn');
+  const spi = document.getElementById('gen-spin');
+  if (btn) btn.disabled = true;
+  if (spi) spi.style.display = 'block';
+  const wrap = document.getElementById('prog-wrap');
+  if (wrap) wrap.classList.add('show');
+  document.getElementById('prog-name').textContent = name;
+  resetSteps();
+  activateStep(1); setBar(5);
+  let step = 1;
+  progTimer = setInterval(() => {
+    step++;
+    if (step <= 5) { activateStep(step); setBar(step * 18); }
+    if (step >= 5) clearInterval(progTimer);
+  }, 22000);
+}
+
+function hideProgress() {
+  clearInterval(progTimer);
+  const btn = document.getElementById('gen-btn');
+  const spi = document.getElementById('gen-spin');
+  if (btn) btn.disabled = false;
+  if (spi) spi.style.display = 'none';
+  const wrap = document.getElementById('prog-wrap');
+  if (wrap) wrap.classList.remove('show');
+  resetSteps(); setBar(0);
+}
+
+function setBar(pct) {
+  const bar = document.getElementById('prog-fill');
+  if (bar) bar.style.width = pct + '%';
+}
+
+function activateStep(num) {
+  for (let i = 1; i < num; i++) {
+    const el = document.getElementById('s' + i);
+    if (!el) continue;
+    el.classList.remove('active'); el.classList.add('done');
+    el.querySelector('.step-num').textContent = '✓';
+  }
+  const a = document.getElementById('s' + num);
+  if (a) a.classList.add('active');
+}
+
+function resetSteps() {
+  for (let i = 1; i <= 5; i++) {
+    const el = document.getElementById('s' + i);
+    if (!el) continue;
+    el.classList.remove('active', 'done');
+    el.querySelector('.step-num').textContent = i;
+  }
+}
+
+// ============================================================
+// ALERT
+// ============================================================
+function showAlert(id, msg, type) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.className = 'alert ' + type;
+  el.style.display = 'block';
+  el.textContent = msg;
+  if (type !== 'error') setTimeout(() => el.style.display = 'none', 6000);
+}
+
+// ============================================================
+// GENERATE
+// ============================================================
+async function generateCourse() {
+  const topic = document.getElementById('course-topic').value.trim();
+  if (!topic) { showAlert('gen-alert', '⚠ Please enter a course topic.', 'error'); return; }
+
+  // ── Usage check ──────────────────────────────────────────
+  const currentUser = getCurrentUser();
+  if (currentUser && currentUser.user_id) {
+    const today = new Date().toISOString().split('T')[0];
+    try {
+      const usageRes = await fetch(SB_URL + '/rest/v1/usage?user_id=eq.' + currentUser.user_id + '&date=eq.' + today + '&select=generation_count', { headers: SB_HEADERS });
+      const usageArr = await usageRes.json();
+      const usageCount = usageArr && usageArr.length > 0 ? usageArr[0].generation_count : 0;
+      const limit = currentUser.plan === 'paid' ? 999 : 5;
+      if (usageCount >= limit) {
+        showAlert('gen-alert', '🔒 You have used all ' + limit + ' free generations today. Upgrade to Pro ($7/month) for unlimited access. Contact: faithfuladejimi@gmail.com', 'error');
+        return;
+      }
+    } catch(e) { console.log('Usage check error:', e); }
+  }
+
+  const level        = document.getElementById('course-level').value;
+  const duration     = document.getElementById('course-duration').value;
+  const audience     = document.getElementById('course-audience').value;
+  const instructions = buildInstructions();
+
+  document.getElementById('gen-alert').style.display = 'none';
+  showProgress(topic);
+
+  try {
+    const controller = new AbortController();
+    const timeout    = setTimeout(() => controller.abort(), 600000);
+
+    const res = await fetch(N8N_GEN(), {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ course_topic: topic, level, duration, audience, instructions }),
+      signal:  controller.signal
+    });
+
+    clearTimeout(timeout);
+    const text = await res.text();
+    let data;
+    try { data = JSON.parse(text); }
+    catch(e) { throw new Error('Invalid response from n8n. Make sure workflow is Published.'); }
+
+    // ── Track usage in Supabase ───────────────────────────
+    const usr = getCurrentUser();
+    if (usr && usr.user_id) {
+      const today2 = new Date().toISOString().split('T')[0];
+      try {
+        const uRes = await fetch(SB_URL + '/rest/v1/usage?user_id=eq.' + usr.user_id + '&date=eq.' + today2 + '&select=id,generation_count', { headers: SB_HEADERS });
+        const uArr = await uRes.json();
+        if (uArr && uArr.length > 0) {
+          await fetch(SB_URL + '/rest/v1/usage?user_id=eq.' + usr.user_id + '&date=eq.' + today2, {
+            method: 'PATCH', headers: { ...SB_HEADERS, 'Prefer': 'return=minimal' },
+            body: JSON.stringify({ generation_count: uArr[0].generation_count + 1 })
+          });
+        } else {
+          await fetch(SB_URL + '/rest/v1/usage', {
+            method: 'POST', headers: { ...SB_HEADERS, 'Prefer': 'return=representation' },
+            body: JSON.stringify({ user_id: usr.user_id, date: today2, generation_count: 1 })
+          });
+        }
+      } catch(e) { console.log('Usage track error:', e); }
+    }
+
+    // Handle ALL possible n8n response structures
+    let payload = {};
+    let ms = [];
+
+    const findModules = (obj) => {
+      if (!obj) return [];
+      if (Array.isArray(obj)) {
+        for (const item of obj) {
+          const found = findModules(item);
+          if (found.length) return found;
+        }
+      }
+      if (obj.modules && Array.isArray(obj.modules) && obj.modules.length) return obj.modules;
+      if (obj.json) return findModules(obj.json);
+      return [];
+    };
+
+    const findTitle = (obj) => {
+      if (!obj) return '';
+      if (Array.isArray(obj)) { for (const i of obj) { const t = findTitle(i); if (t) return t; } }
+      if (obj.course_title) return obj.course_title;
+      if (obj.json) return findTitle(obj.json);
+      return '';
+    };
+
+    ms = findModules(data);
+
+    if (Array.isArray(data)) {
+      for (const item of data) {
+        const src = item?.json || item;
+        if (src?.course_title) { payload = src; break; }
+      }
+    } else {
+      payload = data?.json || data || {};
+    }
+
+    const foundTitle = findTitle(data) || topic;
+
+    if (!ms.length) {
+      throw new Error('No modules in response. Check n8n is Published and Respond to Webhook node is set to All Incoming Items.');
+    }
+
+    mods        = ms.map(m => ({ ...m, status: 'pending', uploaded: false }));
+    courseTitle = foundTitle;
+    stats.gen++;
+
+    history.unshift({
+      id:    Date.now(),
+      title: courseTitle,
+      topic,
+      date:  new Date().toLocaleDateString(),
+      time:  new Date().toLocaleTimeString(),
+      count: ms.length,
+      mods:  mods.map(m => ({ title: m.module_title, status: 'pending' }))
+    });
+    if (history.length > 30) history.pop();
+
+    save(); renderStats(); renderSbHist(); renderHistory(); renderMods();
+    hideProgress();
+    toast(`✨ Generated ${ms.length} modules for "${courseTitle}"`, 'success');
+    showAlert('gen-alert', `✅ "${courseTitle}" generated with ${ms.length} modules!`, 'success');
+    setTimeout(() => switchTab('review'), 1800);
+
+  } catch(err) {
+    hideProgress();
+    if (err.name === 'AbortError') {
+      showAlert('gen-alert', '⏱ Generation is taking longer than expected. This is normal for 6-8 modules on mobile. Please wait and try again.', 'error');
+    } else if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+      showAlert('gen-alert', '🔌 Cannot connect to n8n. Run: python -m http.server 8080 → open http://localhost:8080', 'error');
+    } else {
+      showAlert('gen-alert', '❌ ' + err.message, 'error');
+    }
+  }
+}
+
+// ============================================================
+// RENDER MODULES
+// ============================================================
+function renderMods() {
+  const empty   = document.getElementById('rev-empty');
+  const content = document.getElementById('rev-content');
+  const list    = document.getElementById('mod-list');
+  const nameEl  = document.getElementById('rev-course-name');
+  const metaEl  = document.getElementById('rev-meta');
+
+  if (!mods.length) {
+    if (empty)   empty.style.display   = 'block';
+    if (content) content.style.display = 'none';
+    renderStats(); return;
+  }
+
+  if (empty)   empty.style.display   = 'none';
+  if (content) content.style.display = 'block';
+  if (nameEl)  nameEl.textContent = courseTitle;
+  const pending = mods.filter(m => m.status === 'pending').length;
+  if (metaEl)  metaEl.textContent = `${mods.length} modules · ${pending} pending review`;
+  renderStats();
+
+  const si = {
+    pending:  { label:'⏳ Pending Review', cls:'pending'  },
+    approved: { label:'✅ Approved',        cls:'approved' },
+    rejected: { label:'❌ Rejected',        cls:'rejected' },
+    uploaded: { label:'🎓 Uploaded',        cls:'uploaded' },
+    editing:  { label:'✏️ Editing',         cls:'editing'  }
+  };
+
+  list.innerHTML = mods.map((m, i) => {
+    const s = si[m.status] || si.pending;
+    return `
+    <div class="mod-card ${m.status}" id="mc${i}">
+      <div class="mod-head" onclick="togMod(${i})">
+        <div class="mod-left">
+          <div class="mod-num">${m.module_number||i+1}</div>
+          <div class="mod-info">
+            <div class="mod-title">${m.module_title||'Module '+(i+1)}</div>
+            <span class="mod-badge ${s.cls}">${s.label}${m.uploaded?' · Moodle ✓':''}</span>
+          </div>
+        </div>
+        <div class="mod-right" onclick="event.stopPropagation()">
+          ${m.status==='pending'?`
+            <button class="btn btn-approve btn-sm" onclick="approveMod(${i})">✅ Approve</button>
+            <button class="btn btn-reject btn-sm" onclick="showFb(${i})">❌ Reject</button>
+          `:''}
+          ${m.status==='approved'?`
+            <button class="btn btn-upload btn-sm" onclick="downloadMod(${i})">📥 Download</button>
+          `:''}
+          ${m.status==='editing'?`
+            <button class="btn btn-approve btn-sm" onclick="saveEdit(${i})">✅ Save & Approve</button>
+            <button class="btn btn-ghost btn-sm" onclick="cancelEdit(${i})">Cancel</button>
+          `:''}
+          <button class="btn btn-pdf btn-sm" onclick="dlPDF(${i})">📄 PDF</button>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+      </div>
+
+      <div class="mod-body">
+        <div class="mod-preview" id="prev${i}">${m.lesson_content||'<p style="color:var(--text3)">No preview.</p>'}</div>
+
+        <div class="mod-edit-area" id="edit${i}">
+          <div class="edit-label">✏️ Edit Content — make changes then save & upload</div>
+          <textarea class="edit-ta" id="edit-ta${i}">${stripHtml(m.lesson_content||m.raw_content||'')}</textarea>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-approve" onclick="saveEdit(${i})">✅ Save & Approve</button>
+            <button class="btn btn-ghost" onclick="cancelEdit(${i})">Cancel</button>
+          </div>
+        </div>
+
+        <div class="feedback-area" id="fb${i}">
+          <div class="fb-label">Choose Rejection Action</div>
+          <div class="fb-opts">
+            <button class="fb-opt active" id="opt-edit-${i}" onclick="setRejMode(${i},'edit')">✏️ Edit Manually</button>
+            <button class="fb-opt" id="opt-regen-${i}" onclick="setRejMode(${i},'regen')">🔄 Regenerate with AI</button>
+          </div>
+          <div id="edit-sec-${i}">
+            <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Content will open in an editor so you can change it directly.</div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-edit" onclick="startEdit(${i})">✏️ Open Editor</button>
+              <button class="btn btn-ghost" onclick="hideFb(${i})">Cancel</button>
+            </div>
+          </div>
+          <div id="regen-sec-${i}" style="display:none">
+            <textarea class="fb-ta" id="fb-ta${i}" placeholder="Describe improvements needed (e.g. add real-world examples, simplify language, include case studies)..."></textarea>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-danger" onclick="submitRegen(${i})">🔄 Regenerate Module</button>
+              <button class="btn btn-ghost" onclick="hideFb(${i})">Cancel</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="mod-footer">
+          <span>module_${m.module_number||i+1} / ${mods.length} · ${m.course_title||courseTitle}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function stripHtml(h) { return h.replace(/<[^>]*>/g,'').replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').trim(); }
+function togMod(i) {
+  const c = document.getElementById('mc'+i);
+  const v = document.getElementById('chev-'+i);
+  c.classList.toggle('open');
+}
+function showFb(i) { document.getElementById('mc'+i).classList.add('open'); document.getElementById('fb'+i).classList.add('show'); rejMode[i]='edit'; }
+function hideFb(i) { document.getElementById('fb'+i).classList.remove('show'); }
+
+function setRejMode(i, mode) {
+  rejMode[i] = mode;
+  document.getElementById('opt-edit-'+i).classList.toggle('active', mode==='edit');
+  document.getElementById('opt-regen-'+i).classList.toggle('active', mode==='regen');
+  document.getElementById('edit-sec-'+i).style.display  = mode==='edit'  ? 'block' : 'none';
+  document.getElementById('regen-sec-'+i).style.display = mode==='regen' ? 'block' : 'none';
+}
+
+function startEdit(i) {
+  hideFb(i);
+  mods[i].status = 'editing';
+  document.getElementById('prev'+i).style.display = 'none';
+  document.getElementById('edit'+i).classList.add('show');
+  document.getElementById('mc'+i).classList.add('open');
+  renderStats();
+}
+
+function cancelEdit(i) {
+  mods[i].status = 'pending';
+  save(); renderMods();
+}
+
+async function saveEdit(i) {
+  const text = document.getElementById('edit-ta'+i)?.value || '';
+  if (!text.trim()) { showAlert('rev-alert','⚠ Please enter content.','error'); return; }
+  const html = '<p>' + text.replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>') + '</p>';
+  mods[i].lesson_content = html;
+  mods[i].raw_content    = text;
+  mods[i].status         = 'approved';
+  mods[i].status = 'approved'; stats.app++;
+  save(); renderStats(); renderMods();
+  toast(`✅ "${mods[i].module_title}" saved and approved!`,'success');
+  showAlert('rev-alert','✅ Module saved and approved!','success');
+}
+
+function approveMod(i) {
+  mods[i].status = 'approved'; stats.app++;
+  save(); renderStats(); renderMods();
+  toast(`✅ "${mods[i].module_title}" approved!`,'success');
+}
+
+function approveAll() {
+  let n = 0;
+  mods.forEach((m,i) => { if (m.status==='pending') { mods[i].status='approved'; stats.app++; n++; } });
+  if (!n) { showAlert('rev-alert','⚠ No pending modules.','error'); return; }
+  save(); renderStats(); renderMods(); toast(`✅ ${n} modules approved!`,'success');
+}
+
+function downloadMod(i) {
+  const m = mods[i];
+  const title = m.module_title || 'Module';
+  const raw = m.raw_content || m.lesson_content?.replace(/<[^>]+>/g,'') || '';
+  const blob = new Blob([`${title}\n\n${raw}`], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = title.replace(/[^a-z0-9]/gi,'_') + '.txt';
+  a.click();
+  toast(`📥 "${title}" downloaded!`,'success');
+}
+
+async function uploadMod(i) {
+  const m = mods[i];
+  showAlert('rev-alert',`📤 Uploading "${m.module_title}"...`,'info');
+  try {
+    await fetch(N8N_REV(), {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'approve', module_title:m.module_title, course_title:m.course_title||courseTitle, lesson_content:m.lesson_content||'', raw_content:m.raw_content||'' })
+    });
+    mods[i].uploaded=true; mods[i].status='uploaded'; stats.up++;
+    save(); renderStats(); renderMods();
+    toast(`🎓 "${m.module_title}" uploaded!`,'success');
+    showAlert('rev-alert','✅ Uploaded to Moodle and Google Drive!','success');
+  } catch(err) { showAlert('rev-alert','❌ Upload failed: '+err.message,'error'); }
+}
+
+async function uploadAll() {
+  const toUp = mods.filter(m => m.status==='approved' && !m.uploaded);
+  if (!toUp.length) { showAlert('rev-alert','⚠ No approved modules to upload.','error'); return; }
+  showAlert('rev-alert',`📤 Uploading ${toUp.length} modules...`,'info');
+  for (let i = 0; i < mods.length; i++) {
+    if (mods[i].status==='approved' && !mods[i].uploaded) {
+      try {
+        await fetch(N8N_REV(), { method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ action:'approve', module_title:mods[i].module_title, course_title:mods[i].course_title||courseTitle, lesson_content:mods[i].lesson_content||'', raw_content:mods[i].raw_content||'' }) });
+        mods[i].uploaded=true; mods[i].status='uploaded'; stats.up++;
+        await new Promise(r => setTimeout(r, 800));
+      } catch(e) {}
+    }
+  }
+  save(); renderStats(); renderMods(); showAlert('rev-alert','🎓 All uploaded to Moodle and Google Drive!','success');
+}
+
+async function submitRegen(i) {
+  const m  = mods[i];
+  const fb = document.getElementById('fb-ta'+i)?.value?.trim();
+  if (!fb) { showAlert('rev-alert','⚠ Please enter feedback.','error'); return; }
+  mods[i].status = 'rejected'; stats.rej++;
+  renderMods(); showAlert('rev-alert','🔄 Regenerating with your feedback...','info');
+  try {
+    const res = await fetch(N8N_REV(), { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'reject', module_title:m.module_title, course_title:m.course_title||courseTitle, lesson_content:m.lesson_content||'', feedback:fb }) });
+    const text = await res.text();
+    let data; try { data=JSON.parse(text); } catch(e) { data={}; }
+    const p  = Array.isArray(data)?data[0]:data;
+    const nc = p?.choices?.[0]?.message?.content || p?.lesson_content || '';
+    if (nc) {
+      let html = nc.replace(/^### (.*$)/gm,'<h3>$1</h3>').replace(/^## (.*$)/gm,'<h2>$1</h2>').replace(/^# (.*$)/gm,'<h1>$1</h1>')
+        .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>')
+        .replace(/^- (.*$)/gm,'<li>$1</li>').replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>');
+      mods[i].lesson_content = '<p>'+html+'</p>'; mods[i].raw_content = nc;
+    }
+    mods[i].status='pending'; save(); renderStats(); renderMods();
+    toast('✅ Module regenerated! Review again.','success');
+    showAlert('rev-alert','✅ Module regenerated with your feedback.','success');
+  } catch(err) { mods[i].status='pending'; renderMods(); showAlert('rev-alert','❌ Regeneration failed: '+err.message,'error'); }
+}
+
+function dlFullPDF() {
+  if (!mods.length) { toast('No modules to export', 'error'); return; }
+  const w = window.open('', '_blank');
+  const allContent = mods.map(m => `
+    <div style="page-break-before:always;padding-top:32px">
+      <h2 style="font-family:Syne,sans-serif;font-size:22px;color:#1e2d4a;border-bottom:2px solid #3b82f6;padding-bottom:8px;margin-bottom:8px">
+        Module ${m.module_number}: ${m.module_title}
+      </h2>
+      <div style="font-size:11px;color:#60748a;margin-bottom:20px;font-family:monospace">
+        ${m.course_title||courseTitle} · Module ${m.module_number} of ${mods.length}
+      </div>
+      ${m.lesson_content || '<p>No content available</p>'}
+    </div>
+  `).join('');
+  w.document.write(`<!DOCTYPE html><html><head><title>${courseTitle} — Full Course</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:'Inter',sans-serif;max-width:820px;margin:0 auto;padding:48px 32px;color:#1a1a2e;line-height:1.75}
+    h1{font-family:'Syne',sans-serif;font-size:34px;color:#0a1428;margin-bottom:6px}
+    h2{font-family:'Syne',sans-serif}
+    h3{font-family:'Syne',sans-serif;color:#1e2d4a;margin:16px 0 6px}
+    .cover{text-align:center;padding:80px 0;border-bottom:3px solid #3b82f6;margin-bottom:0}
+    .cover-meta{font-size:14px;color:#60748a;margin-top:12px;font-family:monospace}
+    .cover-badge{display:inline-block;background:#f0f4ff;border:1px solid #3b82f6;border-radius:6px;padding:4px 16px;font-size:13px;color:#3b82f6;margin-top:16px}
+    strong{color:#0f0e1e} li{margin-bottom:4px} p{margin-bottom:10px}
+    @media print{body{padding:24px}}
+  </style></head>
+  <body>
+  <div class="cover">
+    <h1>${courseTitle}</h1>
+    <div class="cover-meta">Generated by CourseForge AI · ${new Date().toLocaleDateString()} · ${mods.length} Modules</div>
+    <div class="cover-badge">Complete Course Document</div>
+  </div>
+  ${allContent}
+  <script>window.onload=()=>{window.print()}<\/script>
+  </body></html>`);
+  w.document.close();
+}
+
+function dlPDF(i) {
+  const m = mods[i];
+  const w = window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><title>${m.module_title}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <style>body{font-family:'Inter',sans-serif;max-width:780px;margin:48px auto;padding:0 24px;color:#1a1a2e;line-height:1.75}
+  h1{font-family:'Syne',sans-serif;font-size:28px;color:#0f0e1e;border-bottom:2px solid #3b82f6;padding-bottom:10px;margin-bottom:8px}
+  h2,h3{font-family:'Syne',sans-serif;color:#1e2d4a;margin:18px 0 6px}
+  .meta{font-size:12px;color:#60748a;margin-bottom:24px;padding:10px 14px;background:#f0f4ff;border-radius:8px;border-left:3px solid #3b82f6}
+  strong{color:#0f0e1e}li{margin-bottom:4px}p{margin-bottom:10px}</style></head>
+  <body><h1>${m.module_title}</h1>
+  <div class="meta">📚 <strong>Course:</strong> ${m.course_title||courseTitle} · <strong>Module</strong> ${m.module_number} of ${mods.length} · <strong>Generated by</strong> CourseForge AI · ${new Date().toLocaleDateString()}</div>
+  ${m.lesson_content||'<p>No content</p>'}
+  <script>window.onload=()=>{window.print()}<\/script></body></html>`);
+  w.document.close();
+}
+
+// ============================================================
+// HISTORY
+// ============================================================
+function renderSbHist() {
+  const el = document.getElementById('sb-hist');
+  if (!el) return;
+  if (!history.length) { el.innerHTML = '<div style="font-size:11px;color:var(--text3);font-family:\'JetBrains Mono\',monospace">No courses yet</div>'; return; }
+  el.innerHTML = history.slice(0,5).map(h => `
+    <div class="hist-item">
+      <div class="hist-title">${h.title||h.topic}</div>
+      <div class="hist-meta">${h.date} · ${h.count||0} modules</div>
+    </div>
+  `).join('');
+}
+
+function renderHistory() {
+  const el = document.getElementById('hist-grid');
+  if (!el) return;
+  if (!history.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">🕐</div><div class="empty-title">No history yet</div><div class="empty-desc">Generated courses will appear here</div></div>';
+    return;
+  }
+  el.innerHTML = history.map(h => {
+    const up  = (h.mods||[]).filter(m=>m.status==='uploaded').length;
+    const app = (h.mods||[]).filter(m=>m.status==='approved'||m.status==='uploaded').length;
+    return `
+    <div class="hist-card">
+      <div class="hist-card-title">${h.title||h.topic}</div>
+      <div class="hist-card-meta">${h.date} at ${h.time||''} · ${h.count||0} modules</div>
+      <div class="hist-tags">
+        <span class="hist-tag gen">📦 ${h.count||0} generated</span>
+        ${app>0?`<span class="hist-tag app">✅ ${app} approved</span>`:''}
+        ${up>0?`<span class="hist-tag up">🎓 ${up} uploaded</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function toast(msg, type='info') {
+  let wrap = document.getElementById('toasts');
+  const el = document.createElement('div');
+  el.className = 'toast '+type;
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(() => { el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(()=>el.remove(),300); }, 4000);
+}
+</script>
+
+<!-- ── AUTH OVERLAY ──────────────────────────────────────────── -->
+<div id="auth-overlay" style="display:block;position:fixed;inset:0;z-index:99999;background:#0D1B3E;overflow-y:auto;font-family:'Inter',sans-serif;">
+  <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;">
+    
+    <!-- Logo -->
+    <div style="text-align:center;margin-bottom:32px;">
+      <div style="width:64px;height:64px;background:linear-gradient(135deg,#1A56DB,#06B6D4);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:white;margin:0 auto 12px;box-shadow:0 0 30px rgba(59,130,246,0.4);">CF</div>
+      <h1 style="font-size:24px;font-weight:700;color:white;margin:0;font-family:'Syne',sans-serif;">Course<em style="font-style:italic;color:#60A5FA;">Forge</em> AI</h1>
+      <p style="color:#7EAEFF;font-size:13px;margin:6px 0 0;">AI-powered courseware generation for LMS</p>
+    </div>
+
+    <!-- Auth Card -->
+    <div style="background:#142040;border:1px solid rgba(59,130,246,0.2);border-radius:16px;padding:32px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.4);">
+      
+      <!-- Tabs -->
+      <div style="display:flex;gap:4px;background:#0D1B3E;border-radius:10px;padding:4px;margin-bottom:28px;">
+        <button id="tab-login-btn" onclick="switchAuthTab('login')" style="flex:1;padding:9px;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;background:#1A56DB;color:white;font-family:inherit;transition:all .2s;">Sign In</button>
+        <button id="tab-signup-btn" onclick="switchAuthTab('signup')" style="flex:1;padding:9px;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:#7EAEFF;font-family:inherit;transition:all .2s;">Create Account</button>
+      </div>
+
+      <!-- Alert -->
+      <div id="auth-alert" style="display:none;padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:16px;"></div>
+
+      <!-- LOGIN FORM -->
+      <div id="login-form">
+        <div style="margin-bottom:16px;">
+          <label style="display:block;font-size:11px;font-weight:600;color:#7EAEFF;margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em;">Email</label>
+          <input id="login-email" type="email" placeholder="your@email.com" style="width:100%;background:#0D1B3E;border:1.5px solid rgba(59,130,246,0.2);border-radius:8px;padding:11px 14px;font-size:14px;color:white;outline:none;box-sizing:border-box;font-family:inherit;" onfocus="this.style.borderColor='#3B82F6'" onblur="this.style.borderColor='rgba(59,130,246,0.2)'" onkeydown="if(event.key==='Enter')doLogin()">
+        </div>
+        <div style="margin-bottom:20px;">
+          <label style="display:block;font-size:11px;font-weight:600;color:#7EAEFF;margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em;">Password</label>
+          <input id="login-password" type="password" placeholder="••••••••" style="width:100%;background:#0D1B3E;border:1.5px solid rgba(59,130,246,0.2);border-radius:8px;padding:11px 14px;font-size:14px;color:white;outline:none;box-sizing:border-box;font-family:inherit;" onfocus="this.style.borderColor='#3B82F6'" onblur="this.style.borderColor='rgba(59,130,246,0.2)'" onkeydown="if(event.key==='Enter')doLogin()">
+        </div>
+        <button onclick="doLogin()" id="login-btn" style="width:100%;background:linear-gradient(135deg,#1A56DB,#06B6D4);color:white;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity .2s;">Sign In →</button>
+      </div>
+
+      <!-- SIGNUP FORM -->
+      <div id="signup-form" style="display:none;">
+        <div style="margin-bottom:16px;">
+          <label style="display:block;font-size:11px;font-weight:600;color:#7EAEFF;margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em;">Full Name</label>
+          <input id="signup-name" type="text" placeholder="Your full name" style="width:100%;background:#0D1B3E;border:1.5px solid rgba(59,130,246,0.2);border-radius:8px;padding:11px 14px;font-size:14px;color:white;outline:none;box-sizing:border-box;font-family:inherit;" onfocus="this.style.borderColor='#3B82F6'" onblur="this.style.borderColor='rgba(59,130,246,0.2)'">
+        </div>
+        <div style="margin-bottom:16px;">
+          <label style="display:block;font-size:11px;font-weight:600;color:#7EAEFF;margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em;">Email</label>
+          <input id="signup-email" type="email" placeholder="your@email.com" style="width:100%;background:#0D1B3E;border:1.5px solid rgba(59,130,246,0.2);border-radius:8px;padding:11px 14px;font-size:14px;color:white;outline:none;box-sizing:border-box;font-family:inherit;" onfocus="this.style.borderColor='#3B82F6'" onblur="this.style.borderColor='rgba(59,130,246,0.2)'">
+        </div>
+        <div style="margin-bottom:20px;">
+          <label style="display:block;font-size:11px;font-weight:600;color:#7EAEFF;margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em;">Password</label>
+          <input id="signup-password" type="password" placeholder="Min 6 characters" style="width:100%;background:#0D1B3E;border:1.5px solid rgba(59,130,246,0.2);border-radius:8px;padding:11px 14px;font-size:14px;color:white;outline:none;box-sizing:border-box;font-family:inherit;" onfocus="this.style.borderColor='#3B82F6'" onblur="this.style.borderColor='rgba(59,130,246,0.2)'" onkeydown="if(event.key==='Enter')doSignup()">
+        </div>
+        <button onclick="doSignup()" id="signup-btn" style="width:100%;background:linear-gradient(135deg,#1A56DB,#06B6D4);color:white;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity .2s;">Create Account →</button>
+      </div>
+
+      <!-- Free tier note -->
+      <div style="margin-top:20px;padding:12px;background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.15);border-radius:8px;text-align:center;">
+        <p style="margin:0;font-size:11px;color:#7EAEFF;">🎓 <strong style="color:#06B6D4;">Free plan:</strong> 5 course generations/day &nbsp;|&nbsp; <strong style="color:#06B6D4;">Pro plan:</strong> Unlimited — $7/month</p>
+      </div>
+    </div>
+
+    <!-- Features -->
+    <div style="display:flex;gap:20px;margin-top:28px;flex-wrap:wrap;justify-content:center;max-width:500px;">
+      <div style="text-align:center;color:#7EAEFF;font-size:12px;">⚡ Generate in minutes</div>
+      <div style="text-align:center;color:#7EAEFF;font-size:12px;">📥 Download modules instantly</div>
+      <div style="text-align:center;color:#7EAEFF;font-size:12px;">☁️ Google Drive sync</div>
+      <div style="text-align:center;color:#7EAEFF;font-size:12px;">🔍 Web-enriched content</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showAuthPage() {
+  document.getElementById('auth-overlay').style.display = 'block';
+}
+function hideAuthPage() {
+  document.getElementById('auth-overlay').style.display = 'none';
+}
+function switchAuthTab(tab) {
+  const isLogin = tab === 'login';
+  document.getElementById('login-form').style.display = isLogin ? 'block' : 'none';
+  document.getElementById('signup-form').style.display = isLogin ? 'none' : 'block';
+  document.getElementById('tab-login-btn').style.background = isLogin ? '#1A56DB' : 'transparent';
+  document.getElementById('tab-login-btn').style.color = isLogin ? 'white' : '#7EAEFF';
+  document.getElementById('tab-signup-btn').style.background = isLogin ? 'transparent' : '#1A56DB';
+  document.getElementById('tab-signup-btn').style.color = isLogin ? '#7EAEFF' : 'white';
+  document.getElementById('auth-alert').style.display = 'none';
+}
+function showAuthAlert(msg, type) {
+  const el = document.getElementById('auth-alert');
+  el.style.display = 'block';
+  el.style.background = type === 'error' ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)';
+  el.style.border = type === 'error' ? '1px solid rgba(239,68,68,0.3)' : '1px solid rgba(16,185,129,0.3)';
+  el.style.color = type === 'error' ? '#FCA5A5' : '#6EE7B7';
+  el.textContent = msg;
+}
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  if (!email || !password) { showAuthAlert('Please fill in all fields.', 'error'); return; }
+  const btn = document.getElementById('login-btn');
+  btn.textContent = 'Signing in...'; btn.disabled = true;
+  try {
+    const passwordHash = sbHash(password);
+    const res = await fetch(SB_URL + '/rest/v1/users?email=eq.' + encodeURIComponent(email) + '&password_hash=eq.' + encodeURIComponent(passwordHash) + '&select=id,email,full_name,plan', {
+      headers: SB_HEADERS
+    });
+    const users = await res.json();
+    if (!users || users.length === 0) {
+      showAuthAlert('Invalid email or password.', 'error');
+      btn.textContent = 'Sign In →'; btn.disabled = false;
+      return;
+    }
+    const user = users[0];
+    const today = new Date().toISOString().split('T')[0];
+    const usageRes = await fetch(SB_URL + '/rest/v1/usage?user_id=eq.' + user.id + '&date=eq.' + today + '&select=generation_count', { headers: SB_HEADERS });
+    const usage = await usageRes.json();
+    const usageCount = usage && usage.length > 0 ? usage[0].generation_count : 0;
+    const limit = user.plan === 'paid' ? 999 : 5;
+    const result = { success: true, user_id: user.id, email: user.email, full_name: user.full_name, plan: user.plan, generations_today: usageCount, generations_remaining: Math.max(0, limit - usageCount), limit };
+    setCurrentUser(result);
+    hideAuthPage();
+    initApp(result);
+  } catch(e) {
+    showAuthAlert('Connection error: ' + e.message, 'error');
+  }
+  btn.textContent = 'Sign In →'; btn.disabled = false;
+}
+async function doSignup() {
+  const name = document.getElementById('signup-name').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const password = document.getElementById('signup-password').value;
+  if (!name || !email || !password) { showAuthAlert('Please fill in all fields.', 'error'); return; }
+  if (password.length < 6) { showAuthAlert('Password must be at least 6 characters.', 'error'); return; }
+  const btn = document.getElementById('signup-btn');
+  btn.textContent = 'Creating account...'; btn.disabled = true;
+  try {
+    const checkRes = await fetch(SB_URL + '/rest/v1/users?email=eq.' + encodeURIComponent(email) + '&select=id', { headers: SB_HEADERS });
+    const existing = await checkRes.json();
+    if (existing && existing.length > 0) {
+      showAuthAlert('Email already registered. Please sign in.', 'error');
+      btn.textContent = 'Create Account →'; btn.disabled = false;
+      return;
+    }
+    const passwordHash = sbHash(password);
+    const createRes = await fetch(SB_URL + '/rest/v1/users', {
+      method: 'POST',
+      headers: { ...SB_HEADERS, 'Prefer': 'return=representation' },
+      body: JSON.stringify({ email, password_hash: passwordHash, full_name: name, plan: 'free' })
+    });
+    const newUser = await createRes.json();
+    if (newUser && (Array.isArray(newUser) ? newUser[0]?.id : newUser?.id)) {
+      showAuthAlert('Account created successfully! Please sign in.', 'success');
+      setTimeout(() => switchAuthTab('login'), 1500);
+    } else {
+      showAuthAlert('Signup failed: ' + JSON.stringify(newUser).substring(0,100), 'error');
+    }
+  } catch(e) {
+    showAuthAlert('Connection error: ' + e.message, 'error');
+  }
+  btn.textContent = 'Create Account →'; btn.disabled = false;
+}
+</script>
+
+</body>
+</html>

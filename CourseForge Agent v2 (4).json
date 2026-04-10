@@ -1,0 +1,688 @@
+{
+  "name": "CourseForge Agent v2",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "courseforge-intake",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -688,
+        112
+      ],
+      "id": "1e35e8d5-258d-42be-89e7-a13c30bfda3a",
+      "name": "Webhook",
+      "webhookId": "b3b70b3e-e021-4221-9fd7-1d40411cad47"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"max_tokens\": 2000,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an expert instructional designer. Return ONLY valid JSON, no extra text, no markdown, no code blocks. Structure: {\\\"course_title\\\": \\\"\\\", \\\"modules\\\": [{\\\"module_number\\\": 1, \\\"module_title\\\": \\\"\\\", \\\"topics\\\": [], \\\"learning_objectives\\\": []}]}\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"={{ 'Create a course syllabus for: ' + $('Webhook').first().json.body.course_topic + '. Level: ' + $('Webhook').first().json.body.level + '. Target audience: ' + $('Webhook').first().json.body.audience + ($json.answer ? '. Research context: ' + $json.answer : '') + '. STRICT REQUIREMENTS - follow exactly: ' + $('Webhook').first().json.body.instructions + '. For depth - Basic means introductory simple topics only. Intermediate means moderate complexity. Advanced means deep technical topics. Expert means cutting-edge research level. For breadth - Focused means 2-3 core topics per module. Balanced means 4-5 topics per module. Comprehensive means 6-8 topics covering everything. Return ONLY valid JSON.' }}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -272,
+        112
+      ],
+      "id": "7a182943-4943-45c2-afa2-814786f382d6",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "fVru2eFQ0O6vPZ8M",
+          "name": "Groq API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Clear leftover data from previous runs\nconst staticData = $getWorkflowStaticData('global');\nstaticData.lessonResults = [];\n\nconst raw = $input.first().json.choices[0].message.content;\nlet clean = raw.replace(/```json|```/g, '').trim();\nconst jsonStart = clean.indexOf('{');\nconst jsonEnd = clean.lastIndexOf('}');\nif (jsonStart !== -1 && jsonEnd !== -1) {\n  clean = clean.substring(jsonStart, jsonEnd + 1);\n}\nlet course;\ntry {\n  course = JSON.parse(clean);\n} catch(e) {\n  course = {\n    course_title: \"Generated Course\",\n    modules: [\n      { module_number: 1, module_title: \"Module 1\", topics: [\"Topic 1\"], learning_objectives: [\"Objective 1\"] },\n      { module_number: 2, module_title: \"Module 2\", topics: [\"Topic 2\"], learning_objectives: [\"Objective 2\"] }\n    ]\n  };\n}\nreturn course.modules.map(module => ({\n  json: {\n    course_title: course.course_title,\n    module_number: module.module_number,\n    module_title: module.module_title,\n    topics: Array.isArray(module.topics) ? module.topics.join(', ') : module.topics,\n    learning_objectives: Array.isArray(module.learning_objectives) ? module.learning_objectives.join(', ') : module.learning_objectives\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -64,
+        112
+      ],
+      "id": "e059e189-0f1d-489d-abec-09f9420b6bff",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        176,
+        144
+      ],
+      "id": "f00415fd-bb22-4e70-a396-abd567989263",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8c0606b8-1b77-4fd7-ae00-c485cf6d2fc9",
+              "name": "stored_module_title",
+              "value": "=={{ $json.module_title }}",
+              "type": "string"
+            },
+            {
+              "id": "14e9f115-1ccb-4df6-86b9-cb09d0135889",
+              "name": "stored_module_number",
+              "value": "=={{ $json.module_number }}",
+              "type": "string"
+            },
+            {
+              "id": "cb746879-77cd-4610-a477-ea788c937515",
+              "name": "stored_course_title",
+              "value": "=={{ $json.course_title }}",
+              "type": "string"
+            },
+            {
+              "id": "96b49abd-1206-4299-94bf-41c9613b1e05",
+              "name": "stored_topics",
+              "value": "=={{ $json.topics }}",
+              "type": "string"
+            },
+            {
+              "id": "df8c12a7-fd06-4840-8c56-9cc948cadbbf",
+              "name": "stored_objectives",
+              "value": "=={{ $json.learning_objectives }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        384,
+        224
+      ],
+      "id": "f3f5db81-977b-4c18-a463-45a5231a4846",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.1-8b-instant\",\n  \"max_tokens\": 3000,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an expert instructional designer. Generate a detailed lesson with Learning Objectives, Introduction, Main Content, Key Terms, Activities, Assessment Questions and Summary.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"={{ 'Generate a full lesson for Course: ' + $json.stored_course_title + ' Module ' + $json.stored_module_number + ': ' + $json.stored_module_title }}\"\n    }\n  ]\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        576,
+        176
+      ],
+      "id": "babc7c87-8a58-4c64-9df9-da3f90b946bd",
+      "name": "HTTP Request1",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "maxTries": 5,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "fVru2eFQ0O6vPZ8M",
+          "name": "Groq API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst staticData = $getWorkflowStaticData('global');\nif (!staticData.lessonResults) staticData.lessonResults = [];\n\nlet moduleTitle = \"Module\";\nlet moduleNumber = 1;\nlet courseTitle = \"Course\";\n\ntry {\n  const editData = $('Edit Fields').first().json;\n  moduleTitle = editData.stored_module_title || moduleTitle;\n  moduleNumber = editData.stored_module_number || moduleNumber;\n  courseTitle = editData.stored_course_title || courseTitle;\n} catch(e) {}\n\nif (!input.choices || !input.choices[0]) {\n  staticData.lessonResults.push({\n    module_title: moduleTitle,\n    module_number: moduleNumber,\n    course_title: courseTitle,\n    lesson_content: \"<p>Content generation failed.</p>\",\n    raw_content: \"Content generation failed for: \" + moduleTitle,\n    status: \"pending_review\"\n  });\n} else {\n  const content = input.choices[0].message.content;\n  let html = content\n    .replace(/^### (.*$)/gm, '<h3>$1</h3>')\n    .replace(/^## (.*$)/gm, '<h2>$1</h2>')\n    .replace(/^# (.*$)/gm, '<h1>$1</h1>')\n    .replace(/\\*\\*(.*?)\\*\\*/g, '<strong>$1</strong>')\n    .replace(/\\*(.*?)\\*/g, '<em>$1</em>')\n    .replace(/^- (.*$)/gm, '<li>$1</li>')\n    .replace(/\\n\\n/g, '</p><p>')\n    .replace(/\\n/g, '<br>');\n  html = '<p>' + html + '</p>';\n\n  staticData.lessonResults.push({\n    module_title: moduleTitle,\n    module_number: moduleNumber,\n    course_title: courseTitle,\n    lesson_content: html,\n    raw_content: content,\n    status: \"pending_review\"\n  });\n}\n\nreturn [{ json: { module_title: moduleTitle, module_number: moduleNumber, status: \"processed\" } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        768,
+        176
+      ],
+      "id": "c1562be2-40c9-44db-911e-f025fdc70caa",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "amount": 25
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        944,
+        320
+      ],
+      "id": "cbd60c33-7ce7-432f-9690-cb885d842e2f",
+      "name": "Wait",
+      "webhookId": "54d739f6-0fb7-40b0-b63b-1a5e41d932e0"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        368,
+        -32
+      ],
+      "id": "419b9cbe-73d0-48a9-b1ce-355691113977",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "jsCode": "const aggregated = $input.first().json.data;\nconst staticData = $getWorkflowStaticData('global');\nconst lessonResults = staticData.lessonResults || [];\nstaticData.lessonResults = [];\n\nconst courseTitle = (lessonResults[0]?.course_title || aggregated[0]?.course_title || \"Generated Course\").replace(/^=+/, '').trim();\n\nconst sorted = lessonResults.sort((a,b) => Number(a.module_number) - Number(b.module_number));\n\n// Clean function to remove all markdown symbols\nfunction cleanText(text) {\n  return (text || '')\n    .replace(/#{1,6}\\s/g, '')\n    .replace(/\\*\\*/g, '')\n    .replace(/\\*/g, '')\n    .replace(/`{1,3}/g, '')\n    .replace(/^={3,}$/gm, '')\n    .replace(/^-{3,}$/gm, '')\n    .replace(/^>{1,}/gm, '')\n    .replace(/\\[([^\\]]+)\\]\\([^)]+\\)/g, '$1')\n    .replace(/^=+/gm, '')\n    .trim();\n}\n\nconst combinedContent = sorted.map(item => {\n  const content = cleanText(item.raw_content || item.clean_content || \"Content unavailable\");\n  const title = cleanText(item.module_title || \"Module\");\n  return `MODULE ${item.module_number}: ${cleanText(String(item.module_number))}. ${title}\\n\\n${content}\\n\\n\\n`;\n}).join('');\n\nconst fullDocContent = `COURSE: ${courseTitle}\\n\\nGenerated by CourseForge AI\\nDate: ${new Date().toLocaleDateString()}\\n\\n${combinedContent}`;\n\nconst modules = sorted.map(item => ({\n  module_number: item.module_number,\n  module_title: cleanText(item.module_title),\n  course_title: courseTitle,\n  lesson_content: item.lesson_content,\n  raw_content: cleanText(item.raw_content),\n  status: \"pending_review\"\n}));\n\nreturn [{\n  json: {\n    message: \"Courseware generated. Awaiting review.\",\n    total_modules: modules.length,\n    course_title: courseTitle,\n    combined_content: fullDocContent,\n    modules: modules\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        544,
+        -32
+      ],
+      "id": "6847e70c-97a3-4959-b51a-e50c15b96966",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "operation": "createFromText",
+        "content": "=={{ $json.combined_content }}",
+        "name": "={{ $json.course_title + ' - CourseForge AI' }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {
+          "convertToGoogleDocument": "={{ true }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        768,
+        -32
+      ],
+      "id": "7654208d-d1a3-43cf-bed8-c23e027e4a7d",
+      "name": "Create file from text",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "g8jMbNXiVM6pt6JD",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($('Code in JavaScript2').first().json) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        944,
+        -32
+      ],
+      "id": "517d2ad5-7c61-46d6-a9d6-c13599376141",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "courseforge-review",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -528,
+        928
+      ],
+      "id": "22b4112f-cac2-4b98-9c2f-605480bb807e",
+      "name": "Webhook1",
+      "webhookId": "d2bbefeb-19da-4b96-b873-7c1d73d73d94",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "af97fee0-adc6-4267-bc69-f6efd7ae1cde",
+              "leftValue": "={{ $json.body.action }}",
+              "rightValue": "approve",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "0b9dc545-869b-4b91-8078-f0c52c2ee793",
+              "leftValue": "={{ $json.body.action }}",
+              "rightValue": "edit",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "looseTypeValidation": "={{ true }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -320,
+        928
+      ],
+      "id": "7e5f7ae5-2c39-464d-a5d3-7d7c350bd71c",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        240,
+        736
+      ],
+      "id": "8b2d9d74-21e5-404f-b3af-cbf306fb0d7f",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.1-8b-instant\",\n  \"max_tokens\": 3000,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an expert instructional designer. Regenerate an improved lesson based on user feedback. Keep the same length and structure as the original. Do not shorten or remove any sections including the summary.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"={{ 'Module: ' + $json.body.module_title + ' | Feedback: ' + $json.body.feedback + ' | Original lesson to improve: ' + ($json.body.lesson_content || '').replace(/\\\"/g, '').replace(/\\n/g, ' ').substring(0, 1500) }}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -112,
+        1072
+      ],
+      "id": "f626b36d-36e7-4853-a3ae-aadfdb351124",
+      "name": "HTTP Request3",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "fVru2eFQ0O6vPZ8M",
+          "name": "Groq API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        672,
+        864
+      ],
+      "id": "5cde616a-a33f-46b0-8a63-f076ed7e0fda",
+      "name": "Respond to Webhook2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": \"={{ $json.body.course_topic + ' university course curriculum syllabus learning objectives' }}\",\n  \"search_depth\": \"advanced\",\n  \"max_results\": 5,\n  \"include_answer\": true,\n  \"include_raw_content\": false,\n  \"include_domains\": [\"coursera.org\", \"mit.edu\", \"stanford.edu\", \"khanacademy.org\"]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -480,
+        112
+      ],
+      "id": "eed36ef8-3d96-4206-b02d-49f6425b5605",
+      "name": "HTTP Request4",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "40t2kULYObEgSozh",
+          "name": "Tavily API"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "createFromText",
+        "content": "=={{ $('Webhook1').first().json.body.raw_content || $('Webhook1').first().json.body.lesson_content }}",
+        "name": "=={{ $('Webhook1').first().json.body.module_title + ' - ' + $('Webhook1').first().json.body.course_title }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {
+          "convertToGoogleDocument": true
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        16,
+        736
+      ],
+      "id": "c0ddcadf-f730-4fe4-a89f-d5ff44ea707a",
+      "name": "Create file from text1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "g8jMbNXiVM6pt6JD",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{'https://api.unsplash.com/search/photos?query=' + encodeURIComponent($('Webhook1').first().json.body.module_title) + '&per_page=2&client_id=QomKLnLuTpvo3AcFeawLf0bG4ENf0fsuoIS65S_8o-c'}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        96,
+        1072
+      ],
+      "id": "7fb14ed2-9f7c-400e-a93d-70352ccf8f66",
+      "name": "HTTP Request5"
+    },
+    {
+      "parameters": {
+        "jsCode": "const groqData = $('HTTP Request3').first().json;\nconst unsplashData = $input.first().json;\nconst feedback = $('Webhook1').first().json.body.feedback || '';\n\nlet content = '';\nif (groqData.choices && groqData.choices[0]) {\n  content = groqData.choices[0].message.content;\n}\n\nconst wantsImages = /image|illustration|diagram|picture|visual|photo/i.test(feedback);\n\nif (wantsImages && unsplashData.results && unsplashData.results.length > 0) {\n  const images = unsplashData.results.slice(0, 2);\n\n  const imgHtml = (img) => `\\n\\n<figure style=\"margin:24px auto;text-align:center;display:block;\">\n    <img src=\"${img.urls.regular}\" alt=\"illustration\" style=\"width:100%;max-width:520px;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.15);\" />\n    <figcaption style=\"font-size:11px;color:#888;margin-top:6px;font-style:italic;\">Photo by ${img.user.name} on Unsplash</figcaption>\n  </figure>\\n\\n`;\n\n  // Split by double newline into paragraphs\n  const parts = content.split(/\\n\\n+/);\n  const total = parts.length;\n\n  // Place first image at 30% and second at 65%\n  const pos1 = Math.max(1, Math.floor(total * 0.30));\n  const pos2 = Math.max(pos1 + 2, Math.floor(total * 0.65));\n\n  if (images[1]) parts.splice(pos2, 0, imgHtml(images[1]));\n  if (images[0]) parts.splice(pos1, 0, imgHtml(images[0]));\n\n  content = parts.join('\\n\\n');\n}\n\nif (groqData.choices && groqData.choices[0]) {\n  groqData.choices[0].message.content = content;\n}\n\nreturn [{ json: groqData }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        336,
+        864
+      ],
+      "id": "4fd55054-b328-412c-9e37-f89ea7ccf2b4",
+      "name": "Code in JavaScript3"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Create file from text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create file from text": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Create file from text1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request4": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create file from text1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request5": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "4a688c8c-1e56-48e8-9d19-241573ee56c9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c4df4d9ec60063b0bee283e329f4ce7e4752029a019eadef2554fcd62595559f"
+  },
+  "id": "IpU5iq0s71ILjQSN",
+  "tags": []
+}
