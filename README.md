@@ -33,3 +33,7 @@ CourseForge AI allows educators to generate complete, structured course modules 
 **Faithful Adejimi** — AI Automation Engineer
 - Email: faithfuladejimi@gmail.com
 - GitHub: [@Jimmy2477](https://github.com/Jimmy2477)
+
+
+## Demo Video
+[![CourseForge AI Demo](https://img.youtube.com/vi/80HGPeQwLsI/0.jpg)](https://www.youtube.com/watch?v=80HGPeQwLsI)
